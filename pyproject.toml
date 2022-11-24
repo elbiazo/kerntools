@@ -2,7 +2,7 @@
 name = "pwnix"
 version = "0.1.0"
 description = ""
-authors = ["elbiazo<baggy.stomp0d@icloud.com>"]
+authors = ["elbiazo <baggy.stomp0d@icloud.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

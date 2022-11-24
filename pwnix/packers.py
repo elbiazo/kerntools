@@ -50,3 +50,22 @@ def pack_cpio(rootfs: str, cpio: str):
     # # Not sure why cpio sends output to stderr
     _, out = Popen(cmd, shell=True, stdout=DEVNULL, stderr=PIPE).communicate()
     logging.info(msg=f"Created {str(cpio_path)}. {out}")
+
+
+def extract_bzimage(bzimage: str, vmlinux_output: str):
+    bzimage_path = Path(bzimage)
+    vmlinux_path = bzimage_path.parent.absolute() / "vmlinux"
+
+    if vmlinux_output:
+        vmlinux_path = Path(vmlinux_output)
+
+    logging.info(msg=f"Extracting {str(bzimage_path)} to {str(vmlinux_path)}")
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    extract_vmlinux = Path(dir_path).parent / "third_party/extract-vmlinux"
+
+    cmd = f"/bin/sh {extract_vmlinux} {bzimage_path.absolute()} > {vmlinux_path.absolute()}"
+    _, err = Popen(cmd, shell=True, stdout=DEVNULL, stderr=PIPE).communicate()
+
+    if err:
+        raise Exception("Failed to extract vmlinux")

@@ -5,7 +5,13 @@ Linux Kernel Pwning Toolkit
 ## Installation
 
 ```bash
-poetry install
+pip install .
+```
+
+### Develeopement Installation
+
+```bash
+pip install -e .
 ```
 
 ## Usage

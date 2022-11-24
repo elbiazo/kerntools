@@ -1,6 +1,6 @@
 # pwnix
 
-Linux Pwning Toolkit
+Linux Kernel Pwning Toolkit
 
 ## Installation
 

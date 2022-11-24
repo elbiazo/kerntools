@@ -8,7 +8,7 @@ def cli():
 
     parser = argparse.ArgumentParser(
         prog="pwnix",
-        description="Linux Pwning Toolkit",
+        description="Linux Kernel Pwning Toolkit",
     )
 
     opt_group = parser.add_mutually_exclusive_group(required=True)

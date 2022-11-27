@@ -15,6 +15,9 @@ def cli():
     opt_group.add_argument("-c", "--cpio", help="cpio command")
     opt_group.add_argument("-r", "--rootfs", help="rootfs path")
     opt_group.add_argument("-z", "--bzimage", help="bzImage or vmlinuz path")
+    opt_group.add_argument(
+        "-l", "--libpn", action="store_true", help="returns libpn header path"
+    )
 
     parser.add_argument("-o", "--output", help="output file")
 
@@ -26,3 +29,10 @@ def cli():
         pack_cpio(args.rootfs, args.output)
     elif args.bzimage:
         extract_bzimage(args.bzimage, args.output)
+    elif args.libpn:
+        import os
+        from pathlib import Path
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        libpn = Path(dir_path).parent / "libpn"
+        return libpn

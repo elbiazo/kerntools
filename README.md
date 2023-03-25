@@ -17,5 +17,5 @@ pip install -e .
 ## Usage
 
 ```bash
-pn --help
+kt --help
 ```

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pwnix"
+name = "kerntools"
 version = "0.1.0"
 description = ""
 authors = ["elbiazo <baggy.stomp0d@icloud.com>"]
@@ -15,4 +15,4 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-pn = "pwnix:cli"
+kt = "kerntools:cli"

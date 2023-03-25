@@ -7,7 +7,7 @@ def cli():
     logging.basicConfig(level=logging.DEBUG)
 
     parser = argparse.ArgumentParser(
-        prog="pwnix",
+        prog="kerntools",
         description="Linux Kernel Pwning Toolkit",
     )
 
@@ -16,7 +16,7 @@ def cli():
     opt_group.add_argument("-r", "--rootfs", help="rootfs path")
     opt_group.add_argument("-z", "--bzimage", help="bzImage or vmlinuz path")
     opt_group.add_argument(
-        "-l", "--libpn", action="store_true", help="returns libpn header path"
+        "-l", "--lib", action="store_true", help="returns libpn header path"
     )
 
     parser.add_argument("-o", "--output", help="output file")
@@ -34,5 +34,5 @@ def cli():
         from pathlib import Path
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        libpn = Path(dir_path).parent / "libpn"
+        libpn = Path(dir_path).parent / "libkt"
         return libpn

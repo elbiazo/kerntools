@@ -29,10 +29,10 @@ def cli():
         pack_cpio(args.rootfs, args.output)
     elif args.bzimage:
         extract_bzimage(args.bzimage, args.output)
-    elif args.libpn:
+    elif args.lib:
         import os
         from pathlib import Path
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        libpn = Path(dir_path).parent / "libkt"
-        return libpn
+        libkt = Path(dir_path).parent / "libkt"
+        return libkt

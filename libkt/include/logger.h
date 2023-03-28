@@ -12,6 +12,11 @@
 //
 namespace logger
 {
+    void fatal(const char *msg)
+    {
+        perror(msg);
+        exit(-1);
+    }
     void error(const char *format, ...)
     {
         if (!format)

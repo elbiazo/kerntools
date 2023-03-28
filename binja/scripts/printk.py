@@ -1,5 +1,5 @@
 # WIP: This is used in snippet.
-printk = bv.get_symbols_by_name("printk")[0]
+printk = bv.get_symbols_by_name("printk.py")[0]
 if printk:
     for ref in bv.get_callers(printk.address):
         if isinstance(ref.hlil, HighLevelILCall):
@@ -13,4 +13,4 @@ if printk:
                 else:
                     log.warn(f"Couldn't get string ref for {ref.address:#x}")
 else:
-    log.info("Can't find printk")
+    log.info("Can't find printk.py")

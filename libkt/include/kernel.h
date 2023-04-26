@@ -2,6 +2,9 @@
 #define __KERNEL_H__
 #include <vector>
 #include <fstream>
+#include <sstream>
+#include <map>
+
 namespace kernel
 {
     // Linux Kernel
@@ -10,10 +13,12 @@ namespace kernel
 
     public:
         size_t base;
+        // custom sym_map
+        std::map<std::string, size_t> syms;
 
         LinKern()
         {
-            base = 0;
+            base = 0xffffffff81000000;
         }
 
         size_t calc_base(std::string kallsym_path, std::string symbol, size_t sym_addr)
@@ -23,7 +28,13 @@ namespace kernel
             this->base = base;
             return this->base;
         }
+        size_t calc_sym(std::string kallsym_path, std::string symbol)
+        {
+            size_t sym_offset = find_sym(kallsym_path, symbol) - find_sym(kallsym_path, "_text");
+            return this->base = base + sym_offset;
+        }
 
+        // find the address of a symbol in the kallsyms file
         size_t find_sym(std::string kallsym_path, std::string symbol)
         {
             std::string line;
@@ -86,6 +97,7 @@ namespace kernel
         printf("\trflags: 0x%lx\n", state->rflags);
     }
 
+#if __x86_64__
     void save_state(userspace_state *state)
     {
         asm(
@@ -115,5 +127,6 @@ namespace kernel
                        "r"(state->cs),
                        "r"(f));
     }
+#endif // __x86_64__
 }
 #endif

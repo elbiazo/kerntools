@@ -1,7 +1,7 @@
 #ifndef __KT_H__
 #define __KT_H__
 
-#include "logger.h"
+#include "util.h"
 #include "kernel.h"
 #include "pwn.h"
 

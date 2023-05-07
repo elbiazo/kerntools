@@ -19,6 +19,8 @@
 // spdlog
 #include <spdlog/spdlog.h>
 
+#include <unistd.h>
+
 namespace pwn
 {
 

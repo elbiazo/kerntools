@@ -4,6 +4,7 @@
 #include "util.h"
 #include "kernel.h"
 #include "pwn.h"
+#include "cov.h"
 
 void debug()
 {

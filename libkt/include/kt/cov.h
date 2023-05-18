@@ -1,5 +1,11 @@
 #ifndef KCOV_H
 #define KCOV_H
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/ioctl.h> 
+
 #define KCOV_INIT_TRACE _IOR('c', 1, unsigned long)
 #define KCOV_ENABLE _IO('c', 100)
 #define KCOV_DISABLE _IO('c', 101)
